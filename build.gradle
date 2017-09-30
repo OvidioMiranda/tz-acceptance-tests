@@ -1,0 +1,65 @@
+import net.masterthought.cucumber.ReportBuilder
+
+apply plugin: 'java'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        // https://mvnrepository.com/artifact/net.masterthought/cucumber-reporting
+        classpath 'net.masterthought:cucumber-reporting:3.7.0'
+    }
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testRuntime
+    }
+}
+
+task cucumber() {
+    dependsOn assemble, compileTestJava
+    doLast {
+        generateReport()
+    }
+    
+}
+
+def generateReport() {
+    File reportOutputDirectory = new File("build/reports");
+    List<String> jsonFiles = new ArrayList<>();
+    jsonFiles.add("build/reports/test-reports.json");
+
+    String buildNumber = System.getProperty('GO_PIPELINE_LABEL');
+    String projectName = "TZ Acceptance API";
+    boolean runWithJenkins = false;
+    boolean parallelTesting = false;
+
+    net.masterthought.cucumber.Configuration configuration = new net.masterthought.cucumber.Configuration(reportOutputDirectory, projectName);
+    // optional configuration
+    configuration.setParallelTesting(parallelTesting);
+    configuration.setRunWithJenkins(runWithJenkins);
+    configuration.setBuildNumber(buildNumber);
+
+    ReportBuilder reportBuilder = new ReportBuilder(jsonFiles, configuration);
+    reportBuilder.generateReports();
+}
+
+dependencies {
+    testCompile 'info.cukes:cucumber-java:1.2.5'
+    testCompile 'info.cukes:cucumber-junit:1.2.5'
+    testCompile 'info.cukes:cucumber-core:1.1.5'
+    testCompile 'info.cukes:cucumber-jvm-deps:1.0.3'
+    testCompile 'com.sun.jersey:jersey-client:1.17.1'
+    testCompile 'com.sun.jersey:jersey-core:1.17.1'
+    testCompile 'junit:junit:4.12'
+}
+
+repositories {
+    mavenCentral()
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.5.1'
+}
