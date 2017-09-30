@@ -5,6 +5,6 @@
 *.log
 
 # Build Files
-.gradle/
-.bin/
-build/
+.gradle/*
+.bin/*
+build/*
