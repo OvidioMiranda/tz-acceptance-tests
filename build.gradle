@@ -18,6 +18,10 @@ configurations {
     }
 }
 
+test {
+    systemProperty 'rest.service.url', System.properties['rest.service.url']
+}
+
 task cucumber() {
     dependsOn assemble, compileTestJava
     doLast {
